@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot sobre Comida Típica Chilena</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chatbox">
+            <div id="chat-log"></div>
+        </div>
+        <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí...">
+        <button id="send-button">Enviar</button>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const sendButton = document.getElementById("send-button");
+            const userInput = document.getElementById("user-input");
+
+            sendButton.addEventListener("click", sendMessage);
+
+            function sendMessage() {
+                const userMessage = userInput.value.toLowerCase().trim();
+                if (userMessage === "") {
+                    console.log("No se ingresó ningún mensaje.");
+                    return;
+                }
+
+                addMessageToChatLog(userMessage, "user-message");
+
+                const botResponse = getClosestResponse(userMessage);
+                if (botResponse) {
+                    setTimeout(() => {
+                        addMessageToChatLog(botResponse, "bot-message");
+                    }, 500);
+                } else {
+                    setTimeout(() => {
+                        addMessageToChatLog(
+                            "Lo siento, no entendí tu pregunta. Por favor, ingresa una pregunta válida. Ejemplo: '¿Qué son las empanadas de pino y cómo se preparan?'",
+                            "bot-message"
+                        );
+                    }, 500);
+                }
+
+                userInput.value = "";
+            }
+
+            function getClosestResponse(message) {
+                let bestMatch = "";
+                let bestScore = 0.5; // Umbral de similitud, ajustable
+
+                for (const key in responses) {
+                    const score = similarity(message, key);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = key;
+                    }
+                }
+
+                return bestMatch ? responses[bestMatch] : null;
+            }
+
+            function addMessageToChatLog(message, className) {
+                const chatLog = document.getElementById("chat-log");
+                const messageElement = document.createElement("div");
+                messageElement.className = `message ${className}`;
+                messageElement.textContent = message;
+                chatLog.appendChild(messageElement);
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+
+            // Función para calcular la similitud entre dos cadenas de texto
+            function similarity(s1, s2) {
+                let longer = s1;
+                let shorter = s2;
+                if (s1.length < s2.length) {
+                    longer = s2;
+                    shorter = s1;
+                }
+                const longerLength = longer.length;
+                if (longerLength === 0) {
+                    return 1.0;
+                }
+                return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+            }
+
+            function editDistance(s1, s2) {
+                s1 = s1.toLowerCase();
+                s2 = s2.toLowerCase();
+
+                const costs = [];
+                for (let i = 0; i <= s1.length; i++) {
+                    let lastValue = i;
+                    for (let j = 0; j <= s2.length; j++) {
+                        if (i === 0) {
+                            costs[j] = j;
+                        } else {
+                            if (j > 0) {
+                                let newValue = costs[j - 1];
+                                if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                                    newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                                }
+                                costs[j - 1] = lastValue;
+                                lastValue = newValue;
+                            }
+                        }
+                    }
+                    if (i > 0) {
+                        costs[s2.length] = lastValue;
+                    }
+                }
+                return costs[s2.length];
+            }
+
+            // Diccionario de respuestas predefinidas con preguntas más extensas
+            const responses = {
+                "¿cuál es la comida típica de chile?": "Chile tiene una rica variedad de platos típicos, incluyendo empanadas, asado, cazuela, curanto, pastel de choclo y más.",
+                "¿qué son las empanadas de pino y cómo se preparan?": "Las empanadas de pino son una versión popular de las empanadas chilenas, rellenas de carne de res, cebolla, huevo duro, aceitunas y pasas. Se preparan cocinando la mezcla de carne con cebolla y especias, luego se rellenan las masas de empanada y se hornean hasta que estén doradas.",
+                "¿qué es el asado chileno y qué incluye?": "El asado chileno es una tradición que incluye carnes a la parrilla, como cerdo, vacuno y cordero, acompañado de ensaladas, pebre y a veces papas cocidas. Es una actividad social muy popular en reuniones familiares y festivas.",
+                "¿cuáles son los ingredientes principales de la cazuela chilena?": "La cazuela chilena es una sopa robusta que lleva carne (de pollo o vacuno), papas, zapallo, choclo, y otras verduras como zanahorias y porotos verdes. Es un plato ideal para los días fríos.",
+                "¿cómo se prepara el curanto tradicional de chiloé?": "El curanto se prepara tradicionalmente en un hoyo en la tierra, donde se cocinan mariscos, carnes, papas, y milcao (una especie de pan de papa), cubiertos con hojas de nalca y cocidos al vapor. Es un plato típico del sur de Chile, especialmente de Chiloé.",
+                "¿qué es el pastel de choclo y cómo se sirve?": "El pastel de choclo es un plato tradicional chileno que consiste en una capa de carne picada y cebolla, cubierta con puré de choclo (maíz) y azúcar. Se hornea hasta que la parte superior esté dorada y se sirve caliente, generalmente acompañado de ensaladas.",
+                "¿qué lleva un completo chileno y cómo se diferencia de un hot dog normal?": "Un completo chileno lleva salchicha en pan, con tomate, palta (aguacate), chucrut y mayonesa. Es más grande y lleva más ingredientes que un hot dog normal, lo que lo convierte en un plato muy popular en Chile.",
+                "¿qué es el mote con huesillo y cuándo se suele beber?": "El mote con huesillo es una bebida tradicional chilena hecha con trigo mote y duraznos deshidratados cocidos en un jarabe de azúcar. Se suele beber como refresco en los días calurosos de verano.",
+                "¿cuáles son algunos postres típicos de chile?": "Algunos postres típicos chilenos son el mote con huesillo, los alfajores chilenos, la leche asada, y la torta de mil hojas, todos ellos deliciosos y muy populares en el país.",
+                "¿qué es el pebre y cómo se utiliza en la cocina chilena?": "El pebre es una salsa típica chilena hecha con tomates, cebolla, cilantro, ajo, ají y aceite. Se sirve comúnmente con pan (marraqueta) o carnes a la parrilla y es un acompañamiento indispensable en los asados."
+            };
+        });
+    </script>
+</body>
+</html>
