@@ -1,3 +1,107 @@
-.title {
-    color: green;
+/* Fondo de la página */
+body {
+    background-color: #f0f8ff; /* Azul muy claro para un ambiente amigable */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Contenedor del chat */
+.chat-container {
+    width: 350px;
+    height: 500px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Caja de mensajes */
+#chatbox {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding-right: 10px;
+}
+
+/* Estilos para los mensajes */
+.message {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 20px;
+    max-width: 80%;
+    position: relative;
+}
+
+/* Mensaje del usuario */
+.user-message {
+    background-color: #add8e6; /* Azul claro */
+    align-self: flex-end;
+    color: #333;
+}
+
+/* Mensaje del chatbot */
+.bot-message {
+    background-color: #ffebcd; /* Color amigable (Beige claro) */
+    align-self: flex-start;
+    color: #333;
+}
+
+/* Estilos para el input y el botón */
+input[type="text"] {
+    border: 2px solid #add8e6;
+    border-radius: 20px;
+    padding: 10px;
+    width: calc(100% - 70px);
+    outline: none;
+    margin-right: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+button {
+    background-color: #ffa500; /* Naranja amigable */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #ff8c00; /* Naranja oscuro al pasar el cursor */
+}
+
+/* Nubes */
+.message::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border: 15px solid transparent;
+    border-top-color: inherit;
+    border-bottom: 0;
+    border-right: 0;
+    margin-left: -7.5px;
+    margin-bottom: -15px;
+}
+
+.user-message::after {
+    right: 20px;
+    left: auto;
+    border-left-color: #add8e6; /* Azul claro para la nube del usuario */
+}
+
+.bot-message::after {
+    left: 20px;
+    border-right-color: #ffebcd; /* Beige claro para la nube del bot */
 }
